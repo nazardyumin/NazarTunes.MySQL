@@ -1,3 +1,4 @@
+DROP TABLE table_tracks;
 DROP TABLE table_record_genre_items;
 DROP TABLE table_record_performer_items;
 DROP TABLE table_records;
@@ -46,11 +47,12 @@ CREATE TABLE table_publishers
 
 CREATE TABLE table_records
 (
-    record_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    title        VARCHAR(255) NOT NULL,
-    track_amount INT          NOT NULL,
-    publisher_id INT          NOT NULL,
-    release_date DATE         NOT NULL,
+    record_id      INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    title          VARCHAR(255) NOT NULL,
+    track_amount   INT          NOT NULL,
+    total_duration TIME         NOT NULL,
+    publisher_id   INT          NOT NULL,
+    release_date   DATE         NOT NULL,
     FOREIGN KEY (publisher_id) REFERENCES table_publishers (publisher_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -77,5 +79,15 @@ CREATE TABLE table_record_genre_items
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (genre_id) REFERENCES table_genres (genre_id)
+        ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE table_tracks
+(
+    track_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    record_id   INT          NOT NULL,
+    track_title VARCHAR(255) NOT NULL,
+    duration    TIME         NOT NULL,
+    FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
