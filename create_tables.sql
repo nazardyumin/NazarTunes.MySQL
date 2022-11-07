@@ -59,10 +59,13 @@ CREATE TABLE table_record_performer_items
 (
     record_performer_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id                INT NOT NULL,
-    performer_id             INT NOT NULL,
+    performer_id             INT,
+    band_id                  INT,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (performer_id) REFERENCES table_performers (performer_id)
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (band_id) REFERENCES table_bands (band_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
