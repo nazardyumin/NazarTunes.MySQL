@@ -1,7 +1,11 @@
 DROP TABLE table_tracks;
 DROP TABLE table_record_genre_items;
 DROP TABLE table_record_performer_items;
+DROP TABLE table_nomenclatures;
+DROP TABLE table_nomenclature_item_amounts;
+DROP TABLE table_procurements;
 DROP TABLE table_records;
+DROP TABLE table_suppliers;
 DROP TABLE table_record_types;
 DROP TABLE table_publishers;
 DROP TABLE table_genres;
@@ -50,7 +54,7 @@ CREATE TABLE table_publishers
 CREATE TABLE table_record_types -- CD/DVD/Vinyl/LP/EP etc.
 (
     record_type_id INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    type    VARCHAR(50) NOT NULL
+    type           VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE table_records
@@ -103,3 +107,59 @@ CREATE TABLE table_tracks
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+
+-- tables for sales
+
+CREATE TABLE table_suppliers
+(
+    supplier_id    INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    supplier       TEXT NOT NULL,
+    contact_info   TEXT NOT NULL,
+    is_cooperating BOOL DEFAULT TRUE
+);
+
+CREATE TABLE table_procurements
+(
+    procurement_id      INT    NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    date_of_procurement DATE   NOT NULL,
+    supplier_id         INT    NOT NULL,
+    record_id           INT    NOT NULL,
+    amount              INT    NOT NULL,
+    cost_price          DOUBLE NOT NULL,
+    FOREIGN KEY (supplier_id) REFERENCES table_suppliers (supplier_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (record_id) REFERENCES table_records (record_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE table_nomenclature_item_amounts
+(
+    nomenclature_item_amount_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    record_id                   INT NOT NULL,
+    procurement_id              INT NOT NULL,
+    amount                      INT NOT NULL,
+    profit                      DOUBLE,
+    FOREIGN KEY (record_id) REFERENCES table_records (record_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (procurement_id) REFERENCES table_procurements (procurement_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE table_nomenclatures
+(
+    nomenclature_id             INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    record_id                   INT NOT NULL,
+    nomenclature_item_amount_id INT NOT NULL,
+    defective_amount            INT  DEFAULT 0,
+    sell_price                  DOUBLE NOT NULL,
+    total_items_sold            INT  DEFAULT 0,
+    is_available                BOOL DEFAULT FALSE,
+    is_sold_out                 BOOL DEFAULT FALSE,
+    FOREIGN KEY (record_id) REFERENCES table_records (record_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (nomenclature_item_amount_id) REFERENCES table_nomenclature_item_amounts (nomenclature_item_amount_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+
