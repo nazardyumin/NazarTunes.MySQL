@@ -53,6 +53,7 @@ CREATE TABLE table_records
     total_duration TIME         NOT NULL,
     publisher_id   INT          NOT NULL,
     release_date   DATE         NOT NULL,
+    cover_path     VARCHAR(255) NOT NULL,
     FOREIGN KEY (publisher_id) REFERENCES table_publishers (publisher_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
