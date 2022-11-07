@@ -66,7 +66,7 @@ CREATE TABLE table_records
     publisher_id   INT          NOT NULL,
     release_date   DATE         NOT NULL,
     type_id        INT          NOT NULL,
-    cover_path     VARCHAR(255) NOT NULL,
+    cover_path     VARCHAR(255),
     FOREIGN KEY (publisher_id) REFERENCES table_publishers (publisher_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (type_id) REFERENCES table_record_types (record_type_id)
