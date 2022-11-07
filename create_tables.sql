@@ -2,11 +2,15 @@ DROP TABLE table_tracks;
 DROP TABLE table_record_genre_items;
 DROP TABLE table_record_performer_items;
 DROP TABLE table_records;
+DROP TABLE table_record_types;
 DROP TABLE table_publishers;
 DROP TABLE table_genres;
 DROP TABLE table_bands;
 DROP TABLE table_performers;
 DROP TABLE table_persons;
+
+
+-- tables for records
 
 CREATE TABLE table_persons
 (
@@ -17,20 +21,18 @@ CREATE TABLE table_persons
 
 CREATE TABLE table_performers
 (
-    performer_id       INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    person_id          INT NOT NULL,
-    wiki_link          VARCHAR(255),
-    total_records_sold INT,
+    performer_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    person_id    INT NOT NULL,
+    wiki_link    VARCHAR(255),
     FOREIGN KEY (person_id) REFERENCES table_persons (person_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_bands
 (
-    band_id            INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    band_name          VARCHAR(255) NOT NULL,
-    wiki_link          VARCHAR(255),
-    total_records_sold INT
+    band_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    band_name VARCHAR(255) NOT NULL,
+    wiki_link VARCHAR(255)
 );
 
 CREATE TABLE table_genres
@@ -45,6 +47,12 @@ CREATE TABLE table_publishers
     publisher    VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE table_record_types -- CD/DVD/Vinyl/LP/EP etc.
+(
+    record_type_id INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    type    VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE table_records
 (
     record_id      INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -53,8 +61,11 @@ CREATE TABLE table_records
     total_duration TIME         NOT NULL,
     publisher_id   INT          NOT NULL,
     release_date   DATE         NOT NULL,
+    type_id        INT          NOT NULL,
     cover_path     VARCHAR(255) NOT NULL,
     FOREIGN KEY (publisher_id) REFERENCES table_publishers (publisher_id)
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (type_id) REFERENCES table_record_types (record_type_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
