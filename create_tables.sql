@@ -1,3 +1,6 @@
+DROP TABLE table_order_items;
+DROP TABLE table_all_sales;
+DROP TABLE table_orders;
 DROP TABLE table_tracks;
 DROP TABLE table_record_genre_items;
 DROP TABLE table_record_performer_items;
@@ -243,4 +246,41 @@ CREATE TABLE table_discount_promotions
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (band_id) REFERENCES table_bands (band_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE table_orders
+(
+    order_id               INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    client_id              INT NOT NULL,
+    date_of_order          DATETIME,
+    total_items            INT,
+    total_price            DOUBLE,
+    discount               INT,
+    is_confirmed           BOOL DEFAULT FALSE,
+    discount_is_considered BOOL DEFAULT FALSE,
+    is_paid                BOOL DEFAULT FALSE,
+    is_refunded            BOOL DEFAULT FALSE,
+    FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE table_order_items
+(
+    order_item_id   INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    order_id        INT NOT NULL,
+    nomenclature_id INT NOT NULL,
+    amount          INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES table_orders (order_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE table_all_sales
+(
+    sale_id  INT    NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    order_id INT    NOT NULL,
+    profit   DOUBLE NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES table_orders (order_id)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
 );
