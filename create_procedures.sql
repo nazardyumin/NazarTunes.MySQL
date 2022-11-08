@@ -54,10 +54,12 @@ BEGIN
         BEGIN
             DECLARE EXIT HANDLER FOR SQLEXCEPTION
                 BEGIN
+                    SELECT FALSE INTO if_succeed;
                     ROLLBACK;
                 END;
             DECLARE EXIT HANDLER FOR SQLWARNING
                 BEGIN
+                    SELECT FALSE INTO if_succeed;
                     ROLLBACK;
                 END;
             BEGIN
@@ -70,9 +72,9 @@ BEGIN
                     CALL procedure_insert_user_ids(new_role_id, credential_id, person_id);
                 END;
                 COMMIT;
+                SELECT TRUE INTO if_succeed;
             END;
         END;
-        SELECT TRUE INTO if_succeed;
     END IF;
 END |
 
