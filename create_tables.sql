@@ -11,7 +11,7 @@ DROP TABLE table_procurements;
 DROP TABLE table_discount_promotions;
 DROP TABLE table_records;
 DROP TABLE table_suppliers;
-DROP TABLE table_record_types;
+DROP TABLE table_media_formats;
 DROP TABLE table_publishers;
 DROP TABLE table_genres;
 DROP TABLE table_bands;
@@ -36,7 +36,7 @@ CREATE TABLE table_performers
 (
     performer_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     person_id    INT NOT NULL,
-    wiki_link    VARCHAR(255),
+    wiki_link    VARCHAR(255) DEFAULT '',
     FOREIGN KEY (person_id) REFERENCES table_persons (person_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -45,7 +45,7 @@ CREATE TABLE table_bands
 (
     band_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
     band_name VARCHAR(255) NOT NULL,
-    wiki_link VARCHAR(255)
+    wiki_link VARCHAR(255) DEFAULT ''
 );
 
 CREATE TABLE table_genres
@@ -60,25 +60,25 @@ CREATE TABLE table_publishers
     publisher    VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE table_record_types -- CD/DVD/Vinyl/LP/EP etc.
+CREATE TABLE table_media_formats
 (
-    record_type_id INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    type           VARCHAR(50) NOT NULL
+    media_format_id INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    media_format    VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE table_records
 (
-    record_id      INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    title          VARCHAR(255) NOT NULL,
-    track_amount   INT          NOT NULL,
-    total_duration TIME         NOT NULL,
-    publisher_id   INT          NOT NULL,
-    release_date   DATE         NOT NULL,
-    type_id        INT          NOT NULL,
-    cover_path     VARCHAR(255),
+    record_id       INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    title           VARCHAR(255) NOT NULL,
+    track_amount    INT          NOT NULL,
+    total_duration  TIME         NOT NULL,
+    publisher_id    INT          NOT NULL,
+    release_date    DATE         NOT NULL,
+    media_format_id INT          NOT NULL,
+    cover_path      VARCHAR(255) DEFAULT '',
     FOREIGN KEY (publisher_id) REFERENCES table_publishers (publisher_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
-    FOREIGN KEY (type_id) REFERENCES table_record_types (record_type_id)
+    FOREIGN KEY (media_format_id) REFERENCES table_media_formats (media_format_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
@@ -86,8 +86,8 @@ CREATE TABLE table_record_performer_items
 (
     record_performer_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id                INT NOT NULL,
-    performer_id             INT,
-    band_id                  INT,
+    performer_id             INT DEFAULT 0,
+    band_id                  INT DEFAULT 0,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (performer_id) REFERENCES table_performers (performer_id)
@@ -134,32 +134,34 @@ CREATE TABLE table_credentials
     role_id       INT         NOT NULL,
     is_deleted    BOOL DEFAULT FALSE,
     FOREIGN KEY (role_id) REFERENCES table_roles (role_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_clients
 (
     client_id          INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    credential_id      INT NOT NULL,
     person_id          INT NOT NULL,
-    phone              VARCHAR(20),
-    email              VARCHAR(100),
-    total_amount_spent DOUBLE,
-    personal_discount  INT,
-    is_subscribed      BOOL DEFAULT FALSE,
-    FOREIGN KEY (client_id) REFERENCES table_credentials (credential_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    phone              VARCHAR(20)  DEFAULT '',
+    email              VARCHAR(100) DEFAULT '',
+    total_amount_spent DOUBLE       DEFAULT 0.0,
+    personal_discount  INT          DEFAULT 0,
+    is_subscribed      BOOL         DEFAULT FALSE,
+    FOREIGN KEY (credential_id) REFERENCES table_credentials (credential_id)
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (person_id) REFERENCES table_persons (person_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_admins
 (
-    admin_id  INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    person_id INT NOT NULL,
-    FOREIGN KEY (admin_id) REFERENCES table_credentials (credential_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    admin_id      INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    credential_id INT NOT NULL,
+    person_id     INT NOT NULL,
+    FOREIGN KEY (credential_id) REFERENCES table_credentials (credential_id)
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (person_id) REFERENCES table_persons (person_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 
@@ -182,9 +184,9 @@ CREATE TABLE table_procurements
     amount              INT    NOT NULL,
     cost_price          DOUBLE NOT NULL,
     FOREIGN KEY (supplier_id) REFERENCES table_suppliers (supplier_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_amounts_of_all_procurements
@@ -193,11 +195,11 @@ CREATE TABLE table_amounts_of_all_procurements
     record_id                     INT NOT NULL,
     procurement_id                INT NOT NULL,
     amount                        INT NOT NULL,
-    profit                        DOUBLE,
+    profit                        DOUBLE DEFAULT 0.0,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (procurement_id) REFERENCES table_procurements (procurement_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_nomenclatures
@@ -211,7 +213,7 @@ CREATE TABLE table_nomenclatures
     is_available     BOOL DEFAULT FALSE,
     is_sold_out      BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_frozen_nomenclatures
@@ -222,24 +224,22 @@ CREATE TABLE table_frozen_nomenclatures
     amount                 INT  NOT NULL,
     freeze_till_date       DATE NOT NULL,
     FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_discount_promotions
 (
     discount_promotion_id INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    genre_id              INT,
-    record_id             INT,
-    performer_id          INT,
-    band_id               INT,
+    genre_id              INT DEFAULT 0,
+    record_id             INT DEFAULT 0,
+    performer_id          INT DEFAULT 0,
+    band_id               INT DEFAULT 0,
     discount              INT  NOT NULL,
     end_date              DATE NOT NULL,
     FOREIGN KEY (genre_id) REFERENCES table_genres (genre_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
-    FOREIGN KEY (record_id) REFERENCES table_records (record_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (performer_id) REFERENCES table_performers (performer_id)
@@ -252,16 +252,16 @@ CREATE TABLE table_orders
 (
     order_id               INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     client_id              INT NOT NULL,
-    date_of_order          DATETIME,
-    total_items            INT,
-    total_price            DOUBLE,
-    discount               INT,
-    is_confirmed           BOOL DEFAULT FALSE,
-    discount_is_considered BOOL DEFAULT FALSE,
-    is_paid                BOOL DEFAULT FALSE,
-    is_refunded            BOOL DEFAULT FALSE,
+    datetime_of_order      DATETIME,
+    total_items            INT    DEFAULT 0,
+    total_price            DOUBLE DEFAULT 0.0,
+    discount               INT    DEFAULT 0,
+    is_confirmed           BOOL   DEFAULT FALSE,
+    discount_is_considered BOOL   DEFAULT FALSE,
+    is_paid                BOOL   DEFAULT FALSE,
+    is_refunded            BOOL   DEFAULT FALSE,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_order_items
@@ -271,9 +271,9 @@ CREATE TABLE table_order_items
     nomenclature_id INT NOT NULL,
     amount          INT NOT NULL,
     FOREIGN KEY (order_id) REFERENCES table_orders (order_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE table_all_sales
@@ -282,5 +282,5 @@ CREATE TABLE table_all_sales
     order_id INT    NOT NULL,
     profit   DOUBLE NOT NULL,
     FOREIGN KEY (order_id) REFERENCES table_orders (order_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+        ON UPDATE NO ACTION ON DELETE NO ACTION
 );
