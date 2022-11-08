@@ -52,11 +52,25 @@ BEGIN
         SELECT FALSE INTO if_succeed;
     ELSE
         BEGIN
-            DECLARE credential_id INT;
-            DECLARE person_id INT;
-            CALL procedure_insert_credentials_and_get_id(new_login, new_pass, new_role_id, credential_id);
-            CALL procedure_insert_full_name_and_get_id(new_first_name, new_last_name, person_id);
-            CALL procedure_insert_user_ids(new_role_id, credential_id, person_id);
+            DECLARE EXIT HANDLER FOR SQLEXCEPTION
+                BEGIN
+                    ROLLBACK;
+                END;
+            DECLARE EXIT HANDLER FOR SQLWARNING
+                BEGIN
+                    ROLLBACK;
+                END;
+            BEGIN
+                START TRANSACTION;
+                BEGIN
+                    DECLARE credential_id INT;
+                    DECLARE person_id INT;
+                    CALL procedure_insert_credentials_and_get_id(new_login, new_pass, new_role_id, credential_id);
+                    CALL procedure_insert_full_name_and_get_id(new_first_name, new_last_name, person_id);
+                    CALL procedure_insert_user_ids(new_role_id, credential_id, person_id);
+                END;
+                COMMIT;
+            END;
         END;
         SELECT TRUE INTO if_succeed;
     END IF;
