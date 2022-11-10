@@ -27,9 +27,10 @@ DROP TABLE table_roles;
 
 CREATE TABLE table_persons
 (
-    person_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    first_name VARCHAR(100) NOT NULL,
-    last_name  VARCHAR(100) NOT NULL
+    person_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    first_name   VARCHAR(100) NOT NULL,
+    last_name    VARCHAR(100) NOT NULL,
+    is_performer BOOL DEFAULT FALSE
 );
 
 CREATE TABLE table_performers
@@ -73,7 +74,7 @@ CREATE TABLE table_records
     track_amount    INT          NOT NULL,
     total_duration  TIME         NOT NULL,
     publisher_id    INT          NOT NULL,
-    release_date    DATE         NOT NULL,
+    release_year    CHAR(4)      NOT NULL,
     media_format_id INT          NOT NULL,
     cover_path      VARCHAR(255) DEFAULT '',
     FOREIGN KEY (publisher_id) REFERENCES table_publishers (publisher_id)
@@ -86,8 +87,8 @@ CREATE TABLE table_record_performer_items
 (
     record_performer_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id                INT NOT NULL,
-    performer_id             INT DEFAULT 0,
-    band_id                  INT DEFAULT 0,
+    performer_id             INT,
+    band_id                  INT,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (performer_id) REFERENCES table_performers (performer_id)
