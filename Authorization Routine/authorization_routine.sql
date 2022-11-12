@@ -120,3 +120,50 @@ BEGIN
     SELECT first_name INTO user_first_name FROM table_persons WHERE person_id = @person_id;
     SELECT last_name INTO user_last_name FROM table_persons WHERE person_id = @person_id;
 END |
+
+
+DELIMITER |
+CREATE FUNCTION function_get_client_id(cred_id INT)
+    RETURNS INT
+    DETERMINISTIC
+BEGIN
+    DECLARE id INT;
+    SELECT client_id INTO id FROM table_clients WHERE credential_id = cred_id;
+    RETURN id;
+END |
+
+
+DELIMITER |
+CREATE FUNCTION function_get_client_person_id(cred_id INT)
+    RETURNS INT
+    DETERMINISTIC
+BEGIN
+    DECLARE id INT;
+    SELECT person_id INTO id FROM table_clients WHERE credential_id = cred_id;
+    RETURN id;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_client(IN new_login VARCHAR(50),
+                                     IN new_pass VARCHAR(50),
+                                     OUT user_id INT,
+                                     OUT user_first_name VARCHAR(100),
+                                     OUT user_last_name VARCHAR(100),
+                                     OUT user_phone VARCHAR(20),
+                                     OUT user_email VARCHAR(100),
+                                     OUT user_total_amount_spent DOUBLE,
+                                     OUT user_personal_discount INT,
+                                     OUT user_is_subscribed BOOL)
+BEGIN
+    SET @credential_id := function_get_credential_id(new_login, new_pass);
+    SET @person_id := function_get_client_person_id(@credential_id);
+    SELECT function_get_client_id(@credential_id) INTO user_id;
+    SELECT first_name INTO user_first_name FROM table_persons WHERE person_id = @person_id;
+    SELECT last_name INTO user_last_name FROM table_persons WHERE person_id = @person_id;
+    SELECT phone INTO user_phone FROM table_clients WHERE client_id = user_id;
+    SELECT email INTO user_email FROM table_clients WHERE client_id = user_id;
+    SELECT total_amount_spent INTO user_total_amount_spent FROM table_clients WHERE client_id = user_id;
+    SELECT personal_discount INTO user_personal_discount FROM table_clients WHERE client_id = user_id;
+    SELECT is_subscribed INTO user_is_subscribed FROM table_clients WHERE client_id = user_id;
+END |
