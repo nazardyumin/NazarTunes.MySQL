@@ -113,7 +113,6 @@ CREATE TABLE table_tracks
     track_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id   INT          NOT NULL,
     track_title VARCHAR(255) NOT NULL,
-    duration    TIME         NOT NULL,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
