@@ -1,36 +1,4 @@
 DELIMITER |
-CREATE FUNCTION function_check_if_login_exists(new_login VARCHAR(50))
-    RETURNS BOOL
-    DETERMINISTIC
-BEGIN
-    SET @exists := EXISTS(SELECT credential_id
-                          FROM table_credentials
-                          WHERE login = new_login);
-    IF @exists THEN
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-END |
-
-DELIMITER |
-CREATE FUNCTION function_check_if_credentials_correct(new_login VARCHAR(50), new_pass VARCHAR(50))
-    RETURNS BOOL
-    DETERMINISTIC
-BEGIN
-    SET @success := EXISTS(SELECT credential_id
-                           FROM table_credentials
-                           WHERE login = new_login
-                             AND pass = new_pass);
-    IF @success THEN
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-END |
-
-
-DELIMITER |
 CREATE FUNCTION function_check_if_publisher_exists_and_get_id(new_publisher VARCHAR(100))
     RETURNS INT
     DETERMINISTIC
