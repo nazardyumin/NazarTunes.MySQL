@@ -167,3 +167,38 @@ BEGIN
     SELECT personal_discount INTO user_personal_discount FROM table_clients WHERE client_id = user_id;
     SELECT is_subscribed INTO user_is_subscribed FROM table_clients WHERE client_id = user_id;
 END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_create_user_with_no_check(IN new_login VARCHAR(50),
+                                                     IN new_pass VARCHAR(50),
+                                                     IN new_role_id INT,
+                                                     IN new_first_name VARCHAR(100),
+                                                     IN new_last_name VARCHAR(100),
+                                                     OUT if_succeed BOOL)
+BEGIN
+    BEGIN
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+            BEGIN
+                SELECT FALSE INTO if_succeed;
+                ROLLBACK;
+            END;
+        DECLARE EXIT HANDLER FOR SQLWARNING
+            BEGIN
+                SELECT FALSE INTO if_succeed;
+                ROLLBACK;
+            END;
+        BEGIN
+            START TRANSACTION;
+            BEGIN
+                DECLARE credential_id INT;
+                DECLARE person_id INT;
+                CALL procedure_insert_credentials_and_get_id(new_login, new_pass, new_role_id, credential_id);
+                CALL procedure_insert_full_name_and_get_id(new_first_name, new_last_name, person_id);
+                CALL procedure_insert_user_ids(new_role_id, credential_id, person_id);
+            END;
+            COMMIT;
+            SELECT TRUE INTO if_succeed;
+        END;
+    END;
+END |

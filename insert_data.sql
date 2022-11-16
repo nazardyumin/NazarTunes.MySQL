@@ -30,7 +30,7 @@ INSERT INTO table_publishers (publisher) VALUE ('BMG');
 INSERT INTO table_publishers (publisher) VALUE ('Polydor');
 
 SET @test :=0;
-CALL procedure_create_record_and_get_id('The 1st Album', '9', '00:39:40', 'BMG Ariola', '1985','LP',@test);
+CALL procedure_create_record_and_get_id('The 1st Album', '00:39:40', 'BMG Ariola', '1985','LP',@test);
 
 CALL procedure_create_record_genre_item(@test, 'Pop');
 CALL procedure_create_record_genre_item(@test, 'Disco');
@@ -53,3 +53,22 @@ INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Do You Wanna')
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Lucky Guy');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'One In A Million');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Bells Of Paris');
+
+
+CALL procedure_create_record_and_get_id('The Montreux Album', '00:34:32', 'RAK', '1978','LP',@test);
+CALL procedure_create_record_performer_item_with_band(@test, 'Smokie');
+CALL procedure_create_record_genre_item(@test, 'Pop Rock');
+CALL procedure_create_record_genre_item(@test, 'Country Rock');
+
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'The Girl Can’t Help It');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Power Of Love');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'No More Letters');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Mexican Girl');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'You Took Me By Surprise');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Oh Carol');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Liverpool Docks');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Light Up My Life');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Petesey’s Song');
+INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'For A Few Dollars More');
+
+

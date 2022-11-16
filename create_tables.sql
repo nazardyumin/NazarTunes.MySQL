@@ -71,7 +71,6 @@ CREATE TABLE table_records
 (
     record_id       INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
     title           VARCHAR(255) NOT NULL,
-    track_amount    INT          NOT NULL,
     total_duration  TIME         NOT NULL,
     publisher_id    INT          NOT NULL,
     release_year    CHAR(4)      NOT NULL,
