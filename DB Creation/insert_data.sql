@@ -40,6 +40,14 @@ INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Light Up My Li
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Petesey’s Song');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'For A Few Dollars More');
 
+CALL procedure_create_supplier('Melody Vinyl Store','Russia, Ufa, 5 Lenin str, 8(347)200-30-40');
+CALL procedure_create_supplier('CD Base','Russia, Moscow, 12 Arbat str, 8(495)900-50-60');
+
+
+CALL procedure_create_new_procurement('2022-11-17',1,1,10,2050.10);
+CALL procedure_set_nomenclature_sell_price(1,5000.50);
+
+
 
 
 CALL procedure_get_record_genres(@test);
