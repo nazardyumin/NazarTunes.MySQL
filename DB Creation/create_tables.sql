@@ -194,7 +194,7 @@ CREATE TABLE table_amounts_of_all_procurements
     record_id                     INT NOT NULL,
     procurement_id                INT NOT NULL,
     amount                        INT NOT NULL,
-    profit                        DOUBLE DEFAULT 0.0,
+    defective_amount              INT    DEFAULT 0,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (procurement_id) REFERENCES table_procurements (procurement_id)
@@ -203,14 +203,12 @@ CREATE TABLE table_amounts_of_all_procurements
 
 CREATE TABLE table_nomenclatures
 (
-    nomenclature_id  INT    NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    record_id        INT    NOT NULL,
-    total_amount     INT  DEFAULT 0,
-    defective_amount INT  DEFAULT 0,
-    sell_price       DOUBLE NOT NULL,
-    total_items_sold INT  DEFAULT 0,
-    is_available     BOOL DEFAULT FALSE,
-    is_sold_out      BOOL DEFAULT FALSE,
+    nomenclature_id  INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    record_id        INT NOT NULL,
+    total_amount     INT    DEFAULT 0,
+    sell_price       DOUBLE DEFAULT 0.0,
+    total_items_sold INT    DEFAULT 0,
+    is_available     BOOL   DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );

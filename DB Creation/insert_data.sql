@@ -4,31 +4,6 @@ INSERT INTO table_roles (role_name) VALUE ('client');
 CALL procedure_create_user_test('nazar','123',1,'Nazar','Dyumin');
 CALL procedure_create_user_test('ivan','123',2,'Ivan','Ivanov');
 
-INSERT INTO table_media_formats (media_format) VALUE ('CD');
-INSERT INTO table_media_formats (media_format) VALUE ('DVD');
-INSERT INTO table_media_formats (media_format) VALUE ('BD');
-INSERT INTO table_media_formats (media_format) VALUE ('Vinyl 12"');
-INSERT INTO table_media_formats (media_format) VALUE ('Vinyl 10"');
-INSERT INTO table_media_formats (media_format) VALUE ('Vinyl 7"');
-
-INSERT INTO table_bands (band_name) VALUE ('Queen');
-INSERT INTO table_bands (band_name) VALUE ('Iron Maiden');
-INSERT INTO table_bands (band_name) VALUE ('System Of A Down');
-INSERT INTO table_bands (band_name) VALUE ('Backstreet Boys');
-INSERT INTO table_bands (band_name) VALUE ('Aqua');
-INSERT INTO table_bands (band_name) VALUE ('Scorpions');
-INSERT INTO table_bands (band_name) VALUE ('Acoustic Alchemy');
-INSERT INTO table_bands (band_name) VALUE ('Bee Gees');
-
-INSERT INTO table_persons (first_name, last_name, is_performer) VALUES ('Brian','Culbertson',TRUE);
-INSERT INTO table_persons (first_name, last_name, is_performer) VALUES ('Julien','Dore',TRUE);
-INSERT INTO table_persons (first_name, last_name, is_performer) VALUES ('Louis','Armstrong',TRUE);
-INSERT INTO table_persons (first_name, last_name, is_performer) VALUES ('Britney','Spears',TRUE);
-
-INSERT INTO table_publishers (publisher) VALUE ('Sony Music');
-INSERT INTO table_publishers (publisher) VALUE ('BMG');
-INSERT INTO table_publishers (publisher) VALUE ('Polydor');
-
 SET @test :=0;
 CALL procedure_create_record_and_get_id('The 1st Album', '00:39:40', 'BMG Ariola', '1985','LP',@test);
 
@@ -39,11 +14,6 @@ CALL procedure_create_record_performer_item_with_performer(@test, 'Thomas', 'And
 CALL procedure_create_record_performer_item_with_performer(@test, 'Dieter', 'Bohlen');
 CALL procedure_create_record_performer_item_with_band(@test, 'Modern Talking');
 
-CALL procedure_get_record_genres(@test);
-
-CALL procedure_get_record_performers_persons(@test);
-CALL procedure_get_record_performers_bands(@test);
-
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'You’re My Heart, You’re My Soul');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'You Can Win If You Want');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'There’s Too Much Blue In Missing You');
@@ -53,7 +23,6 @@ INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Do You Wanna')
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Lucky Guy');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'One In A Million');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Bells Of Paris');
-
 
 CALL procedure_create_record_and_get_id('The Montreux Album', '00:34:32', 'RAK', '1978','LP',@test);
 CALL procedure_create_record_performer_item_with_band(@test, 'Smokie');
@@ -72,3 +41,8 @@ INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Petesey’s So
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'For A Few Dollars More');
 
 
+
+CALL procedure_get_record_genres(@test);
+
+CALL procedure_get_record_performers_persons(@test);
+CALL procedure_get_record_performers_bands(@test);
