@@ -110,3 +110,9 @@ BEGIN
     VALUES (new_date, new_supplier_id, new_record_id, new_amount, new_cost_price);
 END |
 
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_nomenclatures()
+BEGIN
+    SELECT * FROM table_nomenclatures;
+END |
