@@ -88,6 +88,7 @@ CREATE TABLE table_record_performer_items
     record_id                INT NOT NULL,
     performer_id             INT,
     band_id                  INT,
+    is_deleted               BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (performer_id) REFERENCES table_performers (performer_id)
@@ -101,6 +102,7 @@ CREATE TABLE table_record_genre_items
     record_genre_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id            INT NOT NULL,
     genre_id             INT NOT NULL,
+    is_deleted           BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (genre_id) REFERENCES table_genres (genre_id)
@@ -194,7 +196,7 @@ CREATE TABLE table_amounts_of_all_procurements
     record_id                     INT NOT NULL,
     procurement_id                INT NOT NULL,
     amount                        INT NOT NULL,
-    defective_amount              INT    DEFAULT 0,
+    defective_amount              INT DEFAULT 0,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (procurement_id) REFERENCES table_procurements (procurement_id)

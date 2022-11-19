@@ -268,9 +268,9 @@ BEGIN
     FROM table_genres
              JOIN table_record_genre_items
                   ON table_genres.genre_id = table_record_genre_items.genre_id
-    WHERE record_id = id_record;
+    WHERE record_id = id_record
+      AND is_deleted = FALSE;
 END |
-
 
 DELIMITER |
 CREATE PROCEDURE procedure_get_record_performers_persons(IN id_record INT)
@@ -280,7 +280,8 @@ BEGIN
              JOIN table_performers ON table_persons.person_id = table_performers.person_id
              JOIN table_record_performer_items
                   ON table_performers.performer_id = table_record_performer_items.performer_id
-    WHERE record_id = id_record;
+    WHERE record_id = id_record
+      AND is_deleted = FALSE;
 END |
 
 
@@ -291,7 +292,8 @@ BEGIN
     FROM table_bands
              JOIN table_record_performer_items
                   ON table_bands.band_id = table_record_performer_items.band_id
-    WHERE record_id = id_record;
+    WHERE record_id = id_record
+      AND is_deleted = FALSE;
 END |
 
 
@@ -413,4 +415,23 @@ BEGIN
         INSERT INTO table_record_performer_items (record_id, band_id)
         VALUES (new_record_id, @id_band);
     END IF;
+END |
+
+
+-- updating record
+
+DELIMITER |
+CREATE PROCEDURE procedure_update_record_title(IN id_record INT, IN new_title VARCHAR(255))
+BEGIN
+    UPDATE table_records SET title = new_title WHERE record_id = id_record;
+END |
+
+DELIMITER |
+CREATE PROCEDURE procedure_delete_record_performer_item_with_band(IN id_record INT, IN not_actual_band_name VARCHAR(255))
+BEGIN
+    SET @id_band := function_get_band_id(not_actual_band_name);
+    UPDATE table_record_performer_items
+    SET is_deleted = TRUE
+    WHERE record_id = id_record
+      AND band_id = @id_band;
 END |
