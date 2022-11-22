@@ -90,7 +90,7 @@ BEGIN
     DECLARE id INT;
     SET @exists := EXISTS(SELECT genre_id
                           FROM table_genres
-                          WHERE genre = new_genre);
+                          WHERE genre_name = new_genre);
     IF @exists THEN
         SELECT function_get_genre_id(new_genre) INTO id;
         RETURN id;
@@ -107,7 +107,7 @@ CREATE FUNCTION function_get_genre_id(new_genre VARCHAR(100))
     DETERMINISTIC
 BEGIN
     DECLARE id INT;
-    SELECT genre_id INTO id FROM table_genres WHERE genre = new_genre;
+    SELECT genre_id INTO id FROM table_genres WHERE genre_name = new_genre;
     RETURN id;
 END |
 
@@ -118,7 +118,7 @@ CREATE FUNCTION function_insert_genre_and_get_id(new_genre VARCHAR(100))
     DETERMINISTIC
 BEGIN
     DECLARE id INT;
-    INSERT INTO table_genres (genre) VALUE (new_genre);
+    INSERT INTO table_genres (genre_name) VALUE (new_genre);
     SELECT MAX(genre_id) INTO id FROM table_genres;
     RETURN id;
 END |
@@ -264,7 +264,7 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_get_record_genres(IN id_record INT)
 BEGIN
-    SELECT genre
+    SELECT genre_name
     FROM table_genres
              JOIN table_record_genre_items
                   ON table_genres.genre_id = table_record_genre_items.genre_id
@@ -330,7 +330,7 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_get_record_tracks(IN id_record INT)
 BEGIN
-    SELECT track_title FROM table_tracks WHERE record_id = id_record;
+    SELECT track_title FROM table_tracks WHERE record_id = id_record AND is_deleted = FALSE;
 END |
 
 
@@ -418,13 +418,47 @@ BEGIN
 END |
 
 
--- updating record
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_bands()
+BEGIN
+    SELECT * FROM table_bands;
+END|
 
 DELIMITER |
-CREATE PROCEDURE procedure_update_record_title(IN id_record INT, IN new_title VARCHAR(255))
+CREATE PROCEDURE procedure_get_all_genres()
 BEGIN
-    UPDATE table_records SET title = new_title WHERE record_id = id_record;
-END |
+    SELECT * FROM table_genres;
+END|
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_performers()
+BEGIN
+    SELECT person_id, first_name, last_name FROM table_persons WHERE is_performer = TRUE;
+END|
+
+
+-- updating record
+DELIMITER |
+CREATE PROCEDURE procedure_update_person_performer(IN id INT, IN new_first_name VARCHAR(100),
+                                                   IN new_last_name VARCHAR(100))
+BEGIN
+    UPDATE table_persons SET first_name = new_first_name, last_name = new_last_name WHERE person_id = id;
+END|
+
+DELIMITER |
+CREATE PROCEDURE procedure_update_band(IN id INT, IN new_band_name VARCHAR(255))
+BEGIN
+    UPDATE table_bands SET band_name = new_band_name WHERE band_id = id;
+END|
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_update_genre(IN id INT, IN new_genre_name VARCHAR(100))
+BEGIN
+    UPDATE table_genres SET genre_name = new_genre_name WHERE genre_id = id;
+END|
+
 
 DELIMITER |
 CREATE PROCEDURE procedure_delete_record_performer_item_with_band(IN id_record INT, IN not_actual_band_name VARCHAR(255))
@@ -434,4 +468,93 @@ BEGIN
     SET is_deleted = TRUE
     WHERE record_id = id_record
       AND band_id = @id_band;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_delete_record_performer_item_with_person(IN id_record INT,
+                                                                    IN not_actual_first_name VARCHAR(100),
+                                                                    IN not_actual_last_name VARCHAR(100))
+BEGIN
+    SET @id_person := function_get_person_as_performer_id(not_actual_first_name, not_actual_last_name);
+    SET @id_performer := function_get_performer_id(@id_person);
+    UPDATE table_record_performer_items
+    SET is_deleted = TRUE
+    WHERE record_id = id_record
+      AND performer_id = @id_performer;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_delete_record_genre_item(IN id_record INT, IN not_actual_genre VARCHAR(100))
+BEGIN
+    SET @id_genre := function_get_genre_id(not_actual_genre);
+    UPDATE table_record_genre_items
+    SET is_deleted = TRUE
+    WHERE record_id = id_record
+      AND genre_id = @id_genre;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_delete_record_track(IN id_track INT)
+BEGIN
+    UPDATE table_tracks
+    SET is_deleted  = TRUE,
+        track_title = ''
+    WHERE track_id = id_track;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_track_ids(IN id_record INT)
+BEGIN
+    SELECT track_id FROM table_tracks WHERE record_id = id_record;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_update_track_title(IN id_track INT, new_track_title varchar(255))
+BEGIN
+    SET @exists := EXISTS(SELECT track_id FROM table_tracks WHERE track_id = id_track);
+    IF !@exists THEN
+        UPDATE table_tracks SET track_title = new_track_title WHERE track_id = id_track;
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_add_new_track(IN id_record INT, new_track_title varchar(255))
+BEGIN
+    SET @exists := EXISTS(SELECT track_id FROM table_tracks WHERE record_id = id_record AND is_deleted = TRUE);
+    IF @exists THEN
+        BEGIN
+            DECLARE deleted_track_id INT;
+            SELECT track_id
+            INTO deleted_track_id
+            FROM table_tracks
+            WHERE record_id = id_record
+              AND is_deleted = TRUE
+            LIMIT 1;
+            UPDATE table_tracks SET is_deleted = FALSE, track_title = new_track_title WHERE track_id = deleted_track_id;
+        END;
+    ELSE
+        INSERT INTO table_tracks (record_id, track_title) VALUES (id_record, new_track_title);
+    END IF;
+END |
+
+-- UNDONE!!!
+DELIMITER |
+CREATE PROCEDURE procedure_update_record(IN new_title varchar(255),
+                                         IN new_total_duration time,
+                                         IN new_publisher varchar(100),
+                                         IN new_release_date char(4),
+                                         IN new_media_format varchar(50),
+                                         OUT new_record_id int)
+BEGIN
+    INSERT INTO table_records (title, total_duration, publisher_id, release_year, media_format_id)
+    VALUES (new_title, new_total_duration,
+            function_check_if_publisher_exists_and_get_id(new_publisher), new_release_date,
+            function_check_if_media_format_exists_and_get_id(new_media_format));
+    SELECT MAX(record_id) INTO new_record_id FROM table_records;
 END |

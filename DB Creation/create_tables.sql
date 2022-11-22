@@ -52,7 +52,7 @@ CREATE TABLE table_bands
 CREATE TABLE table_genres
 (
     genre_id INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    genre    VARCHAR(100) NOT NULL
+    genre_name    VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE table_publishers
@@ -114,6 +114,7 @@ CREATE TABLE table_tracks
     track_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id   INT          NOT NULL,
     track_title VARCHAR(255) NOT NULL,
+    is_deleted           BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );

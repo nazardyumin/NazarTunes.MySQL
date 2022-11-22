@@ -54,3 +54,6 @@ CALL procedure_get_record_genres(@test);
 
 CALL procedure_get_record_performers_persons(@test);
 CALL procedure_get_record_performers_bands(@test);
+
+INSERT INTO table_bands (band_name) VALUE ('ABBA');
+
