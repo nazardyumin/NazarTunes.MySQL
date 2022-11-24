@@ -47,7 +47,7 @@ DELIMITER |
 CREATE PROCEDURE procedure_update_band(IN id INT, IN new_band_name VARCHAR(255))
 BEGIN
     UPDATE table_bands SET band_name = new_band_name WHERE band_id = id;
-END|
+END |
 
 
 DELIMITER |
@@ -99,7 +99,7 @@ BEGIN
     UPDATE table_record_performer_items
     SET band_id = @id_band
     WHERE record_performer_item_id = item_id;
-END|
+END |
 
 
 DELIMITER |
@@ -128,4 +128,4 @@ DELIMITER |
 CREATE PROCEDURE procedure_get_all_bands()
 BEGIN
     SELECT * FROM table_bands;
-END|
+END |
