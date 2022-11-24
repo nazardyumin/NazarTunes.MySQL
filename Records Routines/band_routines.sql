@@ -68,19 +68,18 @@ BEGIN
     IF !@exists THEN
         SET @deleted_item := EXISTS(SELECT record_performer_item_id
                                     FROM table_record_performer_items
-                                    WHERE record_id = new_record_id
-                                      AND is_deleted = TRUE);
+                                    WHERE is_deleted = TRUE);
         IF @deleted_item THEN
             BEGIN
                 DECLARE deleted_item_id INT;
                 SELECT record_performer_item_id
                 INTO deleted_item_id
                 FROM table_record_performer_items
-                WHERE record_id = new_record_id
-                  AND is_deleted = TRUE
+                WHERE is_deleted = TRUE
                 LIMIT 1;
                 UPDATE table_record_performer_items
                 SET band_id    = @id_band,
+                    record_id  = new_record_id,
                     is_deleted = FALSE
                 WHERE record_performer_item_id = deleted_item_id;
             END;
@@ -107,6 +106,7 @@ CREATE PROCEDURE procedure_delete_record_performer_item_with_band(IN item_id INT
 BEGIN
     UPDATE table_record_performer_items
     SET is_deleted = TRUE,
+        record_id  = NULL,
         band_id    = NULL
     WHERE record_performer_item_id = item_id;
 END |
