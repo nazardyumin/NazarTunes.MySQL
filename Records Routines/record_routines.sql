@@ -124,96 +124,16 @@ BEGIN
 END |
 
 
-DELIMITER |
-CREATE FUNCTION function_check_if_person_as_performer_exists(new_first_name VARCHAR(100), new_last_name VARCHAR(100))
-    RETURNS BOOL
-    DETERMINISTIC
-BEGIN
-    SET @exists := EXISTS(SELECT person_id
-                          FROM table_persons
-                          WHERE first_name = new_first_name
-                            AND last_name = new_last_name
-                            AND is_performer = TRUE);
-    IF @exists THEN
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-END |
 
 
-DELIMITER |
-CREATE FUNCTION function_get_person_as_performer_id(new_first_name VARCHAR(100), new_last_name VARCHAR(100))
-    RETURNS INT
-    DETERMINISTIC
-BEGIN
-    DECLARE id INT;
-    SELECT person_id
-    INTO id
-    FROM table_persons
-    WHERE first_name = new_first_name
-      AND last_name = new_last_name
-      AND is_performer = TRUE;
-    RETURN id;
-END |
 
 
-DELIMITER |
-CREATE FUNCTION function_insert_person_as_performer_and_get_id(new_first_name VARCHAR(100), new_last_name VARCHAR(100))
-    RETURNS INT
-    DETERMINISTIC
-BEGIN
-    DECLARE id INT;
-    INSERT INTO table_persons (first_name, last_name, is_performer) VALUES (new_first_name, new_last_name, TRUE);
-    SELECT MAX(person_id) INTO id FROM table_persons;
-    RETURN id;
-END |
 
 
-DELIMITER |
-CREATE FUNCTION function_check_if_performer_exists_and_get_id(new_first_name VARCHAR(100), new_last_name VARCHAR(100))
-    RETURNS INT
-    DETERMINISTIC
-BEGIN
-    DECLARE id_person INT;
-    DECLARE id_performer INT;
-    SET @exists := function_check_if_person_as_performer_exists(new_first_name, new_last_name);
-    IF @exists THEN
-        SELECT function_get_person_as_performer_id(new_first_name, new_last_name) INTO id_person;
-        SELECT function_get_performer_id(id_person) INTO id_performer;
-        RETURN id_performer;
-    ELSE
-        SELECT function_insert_person_as_performer_and_get_id(new_first_name, new_last_name) INTO id_person;
-        SELECT function_insert_performer_and_get_id(id_person) INTO id_performer;
-        RETURN id_performer;
-    END IF;
-END |
 
 
-DELIMITER |
-CREATE FUNCTION function_get_performer_id(new_person_id INT)
-    RETURNS INT
-    DETERMINISTIC
-BEGIN
-    DECLARE id INT;
-    SELECT performer_id
-    INTO id
-    FROM table_performers
-    WHERE person_id = new_person_id;
-    RETURN id;
-END |
 
 
-DELIMITER |
-CREATE FUNCTION function_insert_performer_and_get_id(new_person_id INT)
-    RETURNS INT
-    DETERMINISTIC
-BEGIN
-    DECLARE id INT;
-    INSERT INTO table_performers (person_id) VALUE (new_person_id);
-    SELECT MAX(performer_id) INTO id FROM table_performers;
-    RETURN id;
-END |
 
 
 
@@ -236,17 +156,7 @@ BEGIN
       AND is_deleted = FALSE;
 END |
 
-DELIMITER |
-CREATE PROCEDURE procedure_get_record_performers_persons(IN id_record INT)
-BEGIN
-    SELECT first_name, last_name
-    FROM table_persons
-             JOIN table_performers ON table_persons.person_id = table_performers.person_id
-             JOIN table_record_performer_items
-                  ON table_performers.performer_id = table_record_performer_items.performer_id
-    WHERE record_id = id_record
-      AND is_deleted = FALSE;
-END |
+
 
 
 
@@ -282,11 +192,7 @@ BEGIN
 END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_get_record_tracks(IN id_record INT)
-BEGIN
-    SELECT track_title FROM table_tracks WHERE record_id = id_record AND is_deleted = FALSE;
-END |
+
 
 
 DELIMITER |
@@ -340,22 +246,7 @@ BEGIN
 END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_create_record_performer_item_with_performer(IN new_record_id INT,
-                                                                       new_first_name VARCHAR(100),
-                                                                       new_last_name VARCHAR(100))
-BEGIN
-    SET @id_performer := function_check_if_performer_exists_and_get_id(new_first_name, new_last_name);
-    SET @exists := EXISTS(SELECT record_performer_item_id
-                          FROM table_record_performer_items
-                          WHERE record_id = new_record_id
-                            AND performer_id = @id_performer);
 
-    IF !@exists THEN
-        INSERT INTO table_record_performer_items (record_id, performer_id)
-        VALUES (new_record_id, @id_performer);
-    END IF;
-END |
 
 
 
@@ -369,20 +260,11 @@ BEGIN
 END|
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_get_all_performers()
-BEGIN
-    SELECT person_id, first_name, last_name FROM table_persons WHERE is_performer = TRUE;
-END|
 
 
--- updating record
-DELIMITER |
-CREATE PROCEDURE procedure_update_person_performer(IN id INT, IN new_first_name VARCHAR(100),
-                                                   IN new_last_name VARCHAR(100))
-BEGIN
-    UPDATE table_persons SET first_name = new_first_name, last_name = new_last_name WHERE person_id = id;
-END|
+
+
+
 
 
 
@@ -396,18 +278,7 @@ END|
 
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_delete_record_performer_item_with_person(IN id_record INT,
-                                                                    IN not_actual_first_name VARCHAR(100),
-                                                                    IN not_actual_last_name VARCHAR(100))
-BEGIN
-    SET @id_person := function_get_person_as_performer_id(not_actual_first_name, not_actual_last_name);
-    SET @id_performer := function_get_performer_id(@id_person);
-    UPDATE table_record_performer_items
-    SET is_deleted = TRUE
-    WHERE record_id = id_record
-      AND performer_id = @id_performer;
-END |
+
 
 
 DELIMITER |
@@ -421,52 +292,13 @@ BEGIN
 END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_delete_record_track(IN id_track INT)
-BEGIN
-    UPDATE table_tracks
-    SET is_deleted  = TRUE,
-        track_title = ''
-    WHERE track_id = id_track;
-END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_get_all_track_ids(IN id_record INT)
-BEGIN
-    SELECT track_id FROM table_tracks WHERE record_id = id_record;
-END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_update_track_title(IN id_track INT, new_track_title varchar(255))
-BEGIN
-    SET @exists := EXISTS(SELECT track_id FROM table_tracks WHERE track_id = id_track);
-    IF !@exists THEN
-        UPDATE table_tracks SET track_title = new_track_title WHERE track_id = id_track;
-    END IF;
-END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_add_new_track(IN id_record INT, new_track_title varchar(255))
-BEGIN
-    SET @exists := EXISTS(SELECT track_id FROM table_tracks WHERE record_id = id_record AND is_deleted = TRUE);
-    IF @exists THEN
-        BEGIN
-            DECLARE deleted_track_id INT;
-            SELECT track_id
-            INTO deleted_track_id
-            FROM table_tracks
-            WHERE record_id = id_record
-              AND is_deleted = TRUE
-            LIMIT 1;
-            UPDATE table_tracks SET is_deleted = FALSE, track_title = new_track_title WHERE track_id = deleted_track_id;
-        END;
-    ELSE
-        INSERT INTO table_tracks (record_id, track_title) VALUES (id_record, new_track_title);
-    END IF;
-END |
+
 
 
 -- UNDONE!!!

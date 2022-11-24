@@ -1,30 +1,4 @@
-DELIMITER |
-CREATE TRIGGER trigger_create_nomenclature_after_creating_record
-    AFTER INSERT
-    ON table_records
-    FOR EACH ROW
-BEGIN
-    INSERT INTO table_nomenclatures (record_id) VALUE (NEW.record_id);
-END |
 
-
-DELIMITER |
-CREATE TRIGGER trigger_update_nomenclature_amount_after_adding_procurement
-    AFTER INSERT
-    ON table_procurements
-    FOR EACH ROW
-BEGIN
-    DECLARE old_amount INT DEFAULT 0;
-    DECLARE new_amount INT DEFAULT 0;
-    INSERT INTO table_amounts_of_all_procurements (record_id, procurement_id, amount)
-    VALUES (NEW.record_id, NEW.procurement_id, NEW.amount);
-    SELECT function_get_nomenclature_total_amount(NEW.record_id) INTO old_amount;
-    SELECT old_amount + NEW.amount INTO new_amount;
-    UPDATE table_nomenclatures
-    SET total_amount = new_amount
-    WHERE record_id = NEW.record_id;
-    CALL procedure_make_nomenclature_available_or_unavailable(NEW.record_id);
-END |
 
 
 DELIMITER |

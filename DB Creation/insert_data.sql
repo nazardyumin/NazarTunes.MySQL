@@ -47,13 +47,5 @@ CALL procedure_create_supplier('CD Base','Russia, Moscow, 12 Arbat str, 8(495)90
 CALL procedure_create_new_procurement('2022-11-17',1,1,10,2050.10);
 CALL procedure_set_nomenclature_sell_price(1,3500.20);
 
-
-
-
-CALL procedure_get_record_genres(@test);
-
-CALL procedure_get_record_performers_persons(@test);
-CALL procedure_get_record_performers_bands(@test);
-
 INSERT INTO table_bands (band_name) VALUE ('ABBA');
 

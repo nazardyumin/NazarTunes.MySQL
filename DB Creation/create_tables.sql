@@ -51,8 +51,8 @@ CREATE TABLE table_bands
 
 CREATE TABLE table_genres
 (
-    genre_id INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    genre_name    VARCHAR(100) NOT NULL
+    genre_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    genre_name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE table_publishers
@@ -85,7 +85,7 @@ CREATE TABLE table_records
 CREATE TABLE table_record_performer_items
 (
     record_performer_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    record_id                INT NOT NULL,
+    record_id                INT,
     performer_id             INT,
     band_id                  INT,
     is_deleted               BOOL DEFAULT FALSE,
@@ -100,8 +100,8 @@ CREATE TABLE table_record_performer_items
 CREATE TABLE table_record_genre_items
 (
     record_genre_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    record_id            INT NOT NULL,
-    genre_id             INT NOT NULL,
+    record_id            INT,
+    genre_id             INT,
     is_deleted           BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -112,9 +112,9 @@ CREATE TABLE table_record_genre_items
 CREATE TABLE table_tracks
 (
     track_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    record_id   INT          NOT NULL,
+    record_id   INT,
     track_title VARCHAR(255) NOT NULL,
-    is_deleted           BOOL DEFAULT FALSE,
+    is_deleted  BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -284,3 +284,34 @@ CREATE TABLE table_all_sales
     FOREIGN KEY (order_id) REFERENCES table_orders (order_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+
+-- triggers
+
+DELIMITER |
+CREATE TRIGGER trigger_create_nomenclature_after_creating_record
+    AFTER INSERT
+    ON table_records
+    FOR EACH ROW
+BEGIN
+    INSERT INTO table_nomenclatures (record_id) VALUE (NEW.record_id);
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_update_nomenclature_amount_after_adding_procurement
+    AFTER INSERT
+    ON table_procurements
+    FOR EACH ROW
+BEGIN
+    DECLARE old_amount INT DEFAULT 0;
+    DECLARE new_amount INT DEFAULT 0;
+    INSERT INTO table_amounts_of_all_procurements (record_id, procurement_id, amount)
+    VALUES (NEW.record_id, NEW.procurement_id, NEW.amount);
+    SELECT function_get_nomenclature_total_amount(NEW.record_id) INTO old_amount;
+    SELECT old_amount + NEW.amount INTO new_amount;
+    UPDATE table_nomenclatures
+    SET total_amount = new_amount
+    WHERE record_id = NEW.record_id;
+    CALL procedure_make_nomenclature_available_or_unavailable(NEW.record_id);
+END |

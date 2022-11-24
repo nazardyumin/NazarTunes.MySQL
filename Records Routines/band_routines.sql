@@ -119,8 +119,7 @@ BEGIN
     FROM table_bands
              JOIN table_record_performer_items
                   ON table_bands.band_id = table_record_performer_items.band_id
-    WHERE record_id = id_record
-      AND is_deleted = FALSE;
+    WHERE record_id = id_record;
 END |
 
 
