@@ -53,7 +53,7 @@ END|
 DELIMITER |
 CREATE PROCEDURE procedure_get_all_record_performer_item_with_band_ids(IN id_record INT)
 BEGIN
-    SELECT record_performer_item_id FROM table_record_performer_items WHERE record_id = id_record AND band_id>0;
+    SELECT record_performer_item_id FROM table_record_performer_items WHERE record_id = id_record AND band_id > 0;
 END |
 
 
@@ -66,30 +66,28 @@ BEGIN
                           WHERE record_id = new_record_id
                             AND band_id = @id_band);
     IF !@exists THEN
-        BEGIN
-            SET @deleted_item := EXISTS(SELECT record_performer_item_id
-                                        FROM table_record_performer_items
-                                        WHERE record_id = new_record_id
-                                          AND is_deleted = TRUE);
-            IF @deleted_item THEN
-                BEGIN
-                    DECLARE deleted_item_id INT;
-                    SELECT record_performer_item_id
-                    INTO deleted_item_id
-                    FROM table_record_performer_items
-                    WHERE record_id = new_record_id
-                      AND is_deleted = TRUE
-                    LIMIT 1;
-                    UPDATE table_record_performer_items
-                    SET band_id    = @id_band,
-                        is_deleted = FALSE
-                    WHERE record_performer_item_id = deleted_item_id;
-                END;
-            END IF;
-        END;
-    ELSE
-        INSERT INTO table_record_performer_items (record_id, band_id)
-        VALUES (new_record_id, @id_band);
+        SET @deleted_item := EXISTS(SELECT record_performer_item_id
+                                    FROM table_record_performer_items
+                                    WHERE record_id = new_record_id
+                                      AND is_deleted = TRUE);
+        IF @deleted_item THEN
+            BEGIN
+                DECLARE deleted_item_id INT;
+                SELECT record_performer_item_id
+                INTO deleted_item_id
+                FROM table_record_performer_items
+                WHERE record_id = new_record_id
+                  AND is_deleted = TRUE
+                LIMIT 1;
+                UPDATE table_record_performer_items
+                SET band_id    = @id_band,
+                    is_deleted = FALSE
+                WHERE record_performer_item_id = deleted_item_id;
+            END;
+        ELSE
+            INSERT INTO table_record_performer_items (record_id, band_id)
+            VALUES (new_record_id, @id_band);
+        END IF;
     END IF;
 END |
 
