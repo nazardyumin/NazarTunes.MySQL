@@ -107,29 +107,9 @@ BEGIN
                           FROM table_record_performer_items
                           WHERE record_id = new_record_id
                             AND performer_id = @id_performer);
-
     IF !@exists THEN
-        SET @deleted_item := EXISTS(SELECT record_performer_item_id
-                                    FROM table_record_performer_items
-                                    WHERE is_deleted = TRUE);
-        IF @deleted_item THEN
-            BEGIN
-                DECLARE deleted_item_id INT;
-                SELECT record_performer_item_id
-                INTO deleted_item_id
-                FROM table_record_performer_items
-                WHERE is_deleted = TRUE
-                LIMIT 1;
-                UPDATE table_record_performer_items
-                SET performer_id = @id_performer,
-                    record_id    = new_record_id,
-                    is_deleted   = FALSE
-                WHERE record_performer_item_id = deleted_item_id;
-            END;
-        ELSE
-            INSERT INTO table_record_performer_items (record_id, band_id)
-            VALUES (new_record_id, @id_performer);
-        END IF;
+        INSERT INTO table_record_performer_items (record_id, performer_id)
+        VALUES (new_record_id, @id_performer);
     END IF;
 END |
 
@@ -147,12 +127,10 @@ END |
 
 
 DELIMITER |
-CREATE PROCEDURE procedure_delete_record_performer_item_with_performer(IN item_id INT)
+CREATE PROCEDURE procedure_delete_record_performer_item(IN item_id INT)
 BEGIN
-    UPDATE table_record_performer_items
-    SET is_deleted   = TRUE,
-        record_id    = NULL,
-        performer_id = NULL
+    DELETE
+    FROM table_record_performer_items
     WHERE record_performer_item_id = item_id;
 END |
 

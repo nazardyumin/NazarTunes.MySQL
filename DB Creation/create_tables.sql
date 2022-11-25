@@ -88,7 +88,6 @@ CREATE TABLE table_record_performer_items
     record_id                INT,
     performer_id             INT,
     band_id                  INT,
-    is_deleted               BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (performer_id) REFERENCES table_performers (performer_id)
@@ -102,7 +101,6 @@ CREATE TABLE table_record_genre_items
     record_genre_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id            INT,
     genre_id             INT,
-    is_deleted           BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (genre_id) REFERENCES table_genres (genre_id)
@@ -114,7 +112,6 @@ CREATE TABLE table_tracks
     track_id    INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id   INT,
     track_title VARCHAR(255) NOT NULL,
-    is_deleted  BOOL DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
