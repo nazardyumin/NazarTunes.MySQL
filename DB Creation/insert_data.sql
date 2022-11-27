@@ -5,7 +5,7 @@ CALL procedure_create_user_test('nazar','123',1,'Nazar','Dyumin');
 CALL procedure_create_user_test('ivan','123',2,'Ivan','Ivanov');
 
 SET @test :=0;
-CALL procedure_create_record_and_get_id('The 1st Album', '00:39:40', 'BMG Ariola', '1985','LP',@test);
+CALL procedure_create_record_and_get_id('The 1st Album', '00:39:40', 'BMG Ariola', '1985','LP','',@test);
 
 CALL procedure_create_record_genre_item(@test, 'Pop');
 CALL procedure_create_record_genre_item(@test, 'Disco');
@@ -24,7 +24,7 @@ INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Lucky Guy');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'One In A Million');
 INSERT INTO table_tracks (record_id, track_title) VALUES (@test, 'Bells Of Paris');
 
-CALL procedure_create_record_and_get_id('The Montreux Album', '00:34:32', 'RAK', '1978','LP',@test);
+CALL procedure_create_record_and_get_id('The Montreux Album', '00:34:32', 'RAK', '1978','LP','',@test);
 CALL procedure_create_record_performer_item_with_band(@test, 'Smokie');
 CALL procedure_create_record_genre_item(@test, 'Pop Rock');
 CALL procedure_create_record_genre_item(@test, 'Country Rock');

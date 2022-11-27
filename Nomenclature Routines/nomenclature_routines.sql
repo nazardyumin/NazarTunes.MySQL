@@ -1,6 +1,3 @@
-
-
-
 DELIMITER |
 CREATE FUNCTION function_get_nomenclature_total_amount(id INT)
     RETURNS INT
@@ -10,6 +7,7 @@ BEGIN
     SELECT total_amount INTO nom_amount FROM table_nomenclatures WHERE record_id = id;
     RETURN nom_amount;
 END |
+
 
 DELIMITER |
 CREATE FUNCTION function_get_nomenclature_sell_price(id INT)
@@ -21,7 +19,7 @@ BEGIN
     RETURN _price;
 END |
 
-
+-- don't forget to use it after sales
 DELIMITER |
 CREATE PROCEDURE procedure_make_nomenclature_available_or_unavailable(IN rec_id INT)
 BEGIN

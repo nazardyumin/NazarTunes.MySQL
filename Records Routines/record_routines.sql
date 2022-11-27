@@ -29,14 +29,17 @@ END |
 
 DELIMITER |
 CREATE PROCEDURE procedure_create_record_and_get_id(IN new_title VARCHAR(255),
-                                                    IN new_total_duration TIME, IN new_publisher VARCHAR(100),
+                                                    IN new_total_duration TIME,
+                                                    IN new_publisher VARCHAR(100),
                                                     IN new_release_date CHAR(4),
-                                                    IN new_media_format VARCHAR(50), OUT new_record_id INT)
+                                                    IN new_media_format VARCHAR(50),
+                                                    IN new_cover_path varchar(255),
+                                                    OUT new_record_id INT)
 BEGIN
-    INSERT INTO table_records (title, total_duration, publisher_id, release_year, media_format_id)
+    INSERT INTO table_records (title, total_duration, publisher_id, release_year, media_format_id,cover_path)
     VALUES (new_title, new_total_duration,
             function_check_if_publisher_exists_and_get_id(new_publisher), new_release_date,
-            function_check_if_media_format_exists_and_get_id(new_media_format));
+            function_check_if_media_format_exists_and_get_id(new_media_format), new_cover_path);
     SELECT MAX(record_id) INTO new_record_id FROM table_records;
 END |
 
