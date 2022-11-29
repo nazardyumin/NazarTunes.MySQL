@@ -43,24 +43,7 @@ BEGIN
 END |
 
 
-DELIMITER |
-CREATE PROCEDURE procedure_create_supplier(IN new_supplier TEXT, IN new_contact_info TEXT)
-BEGIN
-    SET @exists := EXISTS(SELECT supplier_id
-                          FROM table_suppliers
-                          WHERE supplier = new_supplier
-                            AND contact_info = new_contact_info);
-    IF !@exists THEN
-        INSERT INTO table_suppliers (supplier, contact_info) VALUES (new_supplier, new_contact_info);
-    END IF;
-END |
 
-
-DELIMITER |
-CREATE PROCEDURE procedure_get_all_suppliers()
-BEGIN
-    SELECT * FROM table_suppliers;
-END |
 
 
 DELIMITER |

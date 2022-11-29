@@ -169,7 +169,7 @@ CREATE TABLE table_admins
 CREATE TABLE table_suppliers
 (
     supplier_id    INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    supplier       TEXT NOT NULL,
+    supplier_name       TEXT NOT NULL,
     contact_info   TEXT NOT NULL,
     is_cooperating BOOL DEFAULT TRUE
 );
