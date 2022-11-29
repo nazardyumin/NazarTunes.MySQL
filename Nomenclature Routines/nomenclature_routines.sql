@@ -43,9 +43,6 @@ BEGIN
 END |
 
 
-
-
-
 DELIMITER |
 CREATE PROCEDURE procedure_set_nomenclature_sell_price(IN nom_id INT, IN new_price DOUBLE)
 BEGIN
@@ -53,16 +50,6 @@ BEGIN
         UPDATE table_nomenclatures SET sell_price = new_price WHERE nomenclature_id = nom_id;
         CALL procedure_make_nomenclature_available_or_unavailable(nom_id);
     END IF;
-END |
-
-
-DELIMITER |
-CREATE PROCEDURE procedure_create_new_procurement(IN new_date DATE, IN new_supplier_id INT, IN new_record_id INT,
-                                                  IN new_amount INT,
-                                                  IN new_cost_price DOUBLE)
-BEGIN
-    INSERT INTO table_procurements (date_of_procurement, supplier_id, record_id, amount, cost_price)
-    VALUES (new_date, new_supplier_id, new_record_id, new_amount, new_cost_price);
 END |
 
 
