@@ -6,3 +6,12 @@ BEGIN
     INSERT INTO table_procurements (date_of_procurement, supplier_id, record_id, amount, cost_price)
     VALUES (new_date, new_supplier_id, new_record_id, new_amount, new_cost_price);
 END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_procurements()
+BEGIN
+    SELECT procurement_id, date_of_procurement, supplier_name, record_id, amount, cost_price
+    FROM table_procurements
+             JOIN table_suppliers ON table_procurements.supplier_id = table_suppliers.supplier_id;
+END |
