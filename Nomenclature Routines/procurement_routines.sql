@@ -11,7 +11,8 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_get_all_procurements()
 BEGIN
-    SELECT procurement_id, date_of_procurement, supplier_name, record_id, amount, cost_price
+    SELECT procurement_id, date_of_procurement, record_id, amount, cost_price, supplier_name
     FROM table_procurements
-             JOIN table_suppliers ON table_procurements.supplier_id = table_suppliers.supplier_id;
+             JOIN table_suppliers ON table_procurements.supplier_id = table_suppliers.supplier_id
+    ORDER BY procurement_id;
 END |
