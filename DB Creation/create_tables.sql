@@ -169,7 +169,7 @@ CREATE TABLE table_admins
 CREATE TABLE table_suppliers
 (
     supplier_id    INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    supplier_name       TEXT NOT NULL,
+    supplier_name  TEXT NOT NULL,
     contact_info   TEXT NOT NULL,
     is_cooperating BOOL DEFAULT TRUE
 );
@@ -203,12 +203,16 @@ CREATE TABLE table_amounts_of_all_procurements
 
 CREATE TABLE table_nomenclatures
 (
-    nomenclature_id  INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    record_id        INT NOT NULL,
-    total_amount     INT    DEFAULT 0,
-    sell_price       DOUBLE DEFAULT 0.0,
-    total_items_sold INT    DEFAULT 0,
-    is_available     BOOL   DEFAULT FALSE,
+    nomenclature_id        INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    record_id              INT NOT NULL,
+    total_amount           INT    DEFAULT 0,
+    sell_price             DOUBLE DEFAULT 0.0,
+    total_items_sold       INT    DEFAULT 0,
+    is_available           BOOL   DEFAULT FALSE,
+    promotion_by_genre     BOOL   DEFAULT FALSE,
+    promotion_by_record    BOOL   DEFAULT FALSE,
+    promotion_by_band      BOOL   DEFAULT FALSE,
+    promotion_by_performer BOOL   DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -228,13 +232,14 @@ CREATE TABLE table_frozen_nomenclatures
 
 CREATE TABLE table_discount_promotions
 (
-    discount_promotion_id INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    genre_id              INT DEFAULT 0,
-    record_id             INT DEFAULT 0,
-    performer_id          INT DEFAULT 0,
-    band_id               INT DEFAULT 0,
-    discount              INT  NOT NULL,
-    end_date              DATE NOT NULL,
+    discount_promotion_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    genre_id              INT  DEFAULT 0,
+    record_id             INT  DEFAULT 0,
+    performer_id          INT  DEFAULT 0,
+    band_id               INT  DEFAULT 0,
+    discount              INT NOT NULL,
+    is_started            BOOL DEFAULT FALSE,
+    is_finished           BOOL DEFAULT FALSE,
     FOREIGN KEY (genre_id) REFERENCES table_genres (genre_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
