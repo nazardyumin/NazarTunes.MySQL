@@ -233,13 +233,15 @@ CREATE TABLE table_frozen_nomenclatures
 CREATE TABLE table_discount_promotions
 (
     discount_promotion_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    genre_id              INT  DEFAULT 0,
-    record_id             INT  DEFAULT 0,
-    performer_id          INT  DEFAULT 0,
-    band_id               INT  DEFAULT 0,
+    genre_id              INT,
+    record_id             INT,
+    performer_id          INT,
+    band_id               INT,
     discount              INT NOT NULL,
     is_started            BOOL DEFAULT FALSE,
     is_finished           BOOL DEFAULT FALSE,
+    start_date            DATE,
+    end_date              DATE,
     FOREIGN KEY (genre_id) REFERENCES table_genres (genre_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
@@ -317,3 +319,28 @@ BEGIN
     WHERE record_id = NEW.record_id;
     CALL procedure_make_nomenclature_available_or_unavailable(NEW.record_id);
 END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_set_promotional_price_if_promotion_by_genre_started
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.genre_id > 0 AND NEW.is_started AND !NEW.is_finished THEN
+        CALL procedure_set_promotional_price_by_genre(NEW.genre_id, NEW.discount);
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_return_normal_price_if_promotion_by_genre_finished
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.genre_id > 0 AND NEW.is_started AND NEW.is_finished THEN
+        CALL procedure_return_normal_price_by_genre(NEW.genre_id, NEW.discount);
+    END IF;
+END |
+

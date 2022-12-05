@@ -84,10 +84,12 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_create_new_promotion_by_genre(IN id_genre INT, IN new_discount INT, IN new_is_started BOOL)
 BEGIN
+    DECLARE promo_id INT;
     INSERT INTO table_discount_promotions (genre_id, discount, is_started)
     VALUES (id_genre, new_discount, new_is_started);
     IF new_is_started THEN
-        CALL procedure_set_promotional_price_by_genre(id_genre, new_discount);
+        SELECT MAX(discount_promotion_id) FROM table_discount_promotions INTO promo_id;
+        CALL procedure_start_promotion_by_genre(promo_id);
     END IF;
 END |
 
@@ -95,7 +97,10 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_start_promotion_by_genre(IN promotion_id INT)
 BEGIN
-    UPDATE table_discount_promotions SET is_started = TRUE WHERE discount_promotion_id = promotion_id;
+    UPDATE table_discount_promotions
+    SET is_started = TRUE,
+        start_date = DATE(NOW())
+    WHERE discount_promotion_id = promotion_id;
 END |
 
 
@@ -103,30 +108,75 @@ DELIMITER |
 CREATE PROCEDURE procedure_finish_promotion_by_genre(IN promotion_id INT)
 BEGIN
     UPDATE table_discount_promotions
-    SET is_started = FALSE, is_finished = TRUE
+    SET is_finished = TRUE,
+        end_date    = DATE(NOW())
     WHERE discount_promotion_id = promotion_id;
 END |
 
 
 DELIMITER |
-CREATE TRIGGER trigger_set_promotional_price_if_promotion_by_genre_started
-    AFTER UPDATE
-    ON table_discount_promotions
-    FOR EACH ROW
+CREATE PROCEDURE procedure_get_all_promotions_by_genre()
 BEGIN
-    IF genre_id > 0 AND NEW.is_started THEN
-        CALL procedure_set_promotional_price_by_genre(genre_id, discount);
-    END IF;
+    SELECT discount_promotion_id,
+           genre_name,
+           discount,
+           is_started,
+           is_finished,
+           start_date,
+           end_date
+    FROM table_discount_promotions
+             JOIN table_genres ON table_discount_promotions.genre_id = table_genres.genre_id
+    WHERE table_discount_promotions.genre_id > 0;
 END |
 
 
 DELIMITER |
-CREATE TRIGGER trigger_return_normal_price_if_promotion_by_genre_finished
-    AFTER UPDATE
-    ON table_discount_promotions
-    FOR EACH ROW
+CREATE PROCEDURE procedure_get_all_promotions_by_record()
 BEGIN
-    IF genre_id > 0 AND NEW.is_finished THEN
-        CALL procedure_return_normal_price_by_genre(genre_id, discount);
-    END IF;
+    SELECT discount_promotion_id,
+           record_id,
+           discount,
+           is_started,
+           is_finished,
+           start_date,
+           end_date
+    FROM table_discount_promotions
+    WHERE record_id > 0;
 END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_promotions_by_band()
+BEGIN
+    SELECT discount_promotion_id,
+           band_name,
+           discount,
+           is_started,
+           is_finished,
+           start_date,
+           end_date
+    FROM table_discount_promotions
+             JOIN table_bands ON table_discount_promotions.band_id = table_bands.band_id
+    WHERE table_discount_promotions.band_id > 0;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_promotions_by_performer()
+BEGIN
+    SELECT discount_promotion_id,
+           first_name,
+           last_name,
+           discount,
+           is_started,
+           is_finished,
+           start_date,
+           end_date
+    FROM table_discount_promotions
+             JOIN table_performers ON table_discount_promotions.performer_id = table_performers.performer_id
+             JOIN table_persons ON table_performers.person_id = table_persons.person_id
+    WHERE table_discount_promotions.performer_id > 0;
+END |
+
+INSERT INTO table_discount_promotions (record_id, discount)
+VALUES (2, 15);
