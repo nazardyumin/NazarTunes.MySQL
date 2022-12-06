@@ -150,13 +150,17 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_get_all_performers()
 BEGIN
-    SELECT person_id, first_name, last_name FROM table_persons WHERE is_performer = TRUE;
+    SELECT performer_id, first_name, last_name
+    FROM table_performers JOIN table_persons ON table_performers.person_id = table_persons.person_id WHERE is_performer = TRUE;
 END|
 
 
 DELIMITER |
-CREATE PROCEDURE procedure_update_person_performer(IN id INT, IN new_first_name VARCHAR(100),
+CREATE PROCEDURE procedure_update_person_performer(IN id_performer INT, IN new_first_name VARCHAR(100),
                                                    IN new_last_name VARCHAR(100))
 BEGIN
-    UPDATE table_persons SET first_name = new_first_name, last_name = new_last_name WHERE person_id = id;
+    DECLARE id_person INT;
+    SELECT person_id INTO id_person FROM table_performers WHERE performer_id = id_performer;
+    UPDATE table_persons SET first_name = new_first_name, last_name = new_last_name WHERE person_id = id_person;
 END|
+
