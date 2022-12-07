@@ -344,4 +344,74 @@ BEGIN
     END IF;
 END |
 
--- finish for all promotions!!!
+
+DELIMITER |
+CREATE TRIGGER trigger_set_promotional_price_if_promotion_by_band_started
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.band_id > 0 AND NEW.is_started AND !NEW.is_finished THEN
+        CALL procedure_set_promotional_price_by_band(NEW.band_id, NEW.discount);
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_return_normal_price_if_promotion_by_band_finished
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.band_id > 0 AND NEW.is_started AND NEW.is_finished THEN
+        CALL procedure_return_normal_price_by_band(NEW.band_id, NEW.discount);
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_set_promotional_price_if_promotion_by_performer_started
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.performer_id > 0 AND NEW.is_started AND !NEW.is_finished THEN
+        CALL procedure_set_promotional_price_by_performer(NEW.performer_id, NEW.discount);
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_return_normal_price_if_promotion_by_performer_finished
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.performer_id > 0 AND NEW.is_started AND NEW.is_finished THEN
+        CALL procedure_return_normal_price_by_performer(NEW.performer_id, NEW.discount);
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_set_promotional_price_if_promotion_by_record_started
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.record_id > 0 AND NEW.is_started AND !NEW.is_finished THEN
+        CALL procedure_set_promotional_price_by_record(NEW.record_id, NEW.discount);
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_return_normal_price_if_promotion_by_record_finished
+    AFTER UPDATE
+    ON table_discount_promotions
+    FOR EACH ROW
+BEGIN
+    IF NEW.record_id > 0 AND NEW.is_started AND NEW.is_finished THEN
+        CALL procedure_return_normal_price_by_record(NEW.record_id, NEW.discount);
+    END IF;
+END |

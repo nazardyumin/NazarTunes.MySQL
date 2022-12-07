@@ -16,12 +16,3 @@ BEGIN
         end_date    = DATE(NOW())
     WHERE discount_promotion_id = promotion_id;
 END |
-
-
-
-
-
-
-
-INSERT INTO table_discount_promotions (record_id, discount)
-VALUES (2, 15);

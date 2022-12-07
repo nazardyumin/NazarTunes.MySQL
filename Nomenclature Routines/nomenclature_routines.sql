@@ -11,10 +11,10 @@ END |
 
 DELIMITER |
 CREATE FUNCTION function_get_nomenclature_sell_price(id INT)
-    RETURNS DECIMAL (8,2)
+    RETURNS DECIMAL(8, 2)
     DETERMINISTIC
 BEGIN
-    DECLARE _price DECIMAL (8,2);
+    DECLARE _price DECIMAL(8, 2);
     SELECT sell_price INTO _price FROM table_nomenclatures WHERE record_id = id;
     RETURN _price;
 END |
@@ -23,7 +23,7 @@ END |
 DELIMITER |
 CREATE PROCEDURE procedure_make_nomenclature_available_or_unavailable(IN rec_id INT)
 BEGIN
-    DECLARE _price DECIMAL(8,2);
+    DECLARE _price DECIMAL(8, 2);
     DECLARE _amount INT;
     SELECT function_get_nomenclature_sell_price(rec_id) INTO _price;
     SELECT function_get_nomenclature_total_amount(rec_id) INTO _amount;
@@ -44,7 +44,7 @@ END |
 
 
 DELIMITER |
-CREATE PROCEDURE procedure_set_nomenclature_sell_price(IN nom_id INT, IN new_price DECIMAL(8,2))
+CREATE PROCEDURE procedure_set_nomenclature_sell_price(IN nom_id INT, IN new_price DECIMAL(8, 2))
 BEGIN
     IF new_price > 0.0 THEN
         UPDATE table_nomenclatures SET sell_price = new_price WHERE nomenclature_id = nom_id;

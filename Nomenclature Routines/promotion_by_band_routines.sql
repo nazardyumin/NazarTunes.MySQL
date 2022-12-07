@@ -11,7 +11,7 @@ BEGIN
     UPDATE table_nomenclatures SET promotion_by_band = FALSE WHERE nomenclature_id = nom_id;
 END |
 
--- doesn't work!!!!!!!!!
+
 DELIMITER |
 CREATE PROCEDURE procedure_set_promotional_price_by_band(IN id_band INT, IN new_discount INT)
 BEGIN
@@ -37,9 +37,9 @@ BEGIN
         IF done THEN
             LEAVE read_loop;
         END IF;
-        SET @actual_price:= function_get_nomenclature_sell_price(nom_id);
+        SET @actual_price := function_get_nomenclature_sell_price(nom_id);
         IF @actual_price > 0 THEN
-            SELECT @actual_price*(1-(new_discount/100)) INTO new_price;
+            SELECT @actual_price * (1 - (new_discount / 100)) INTO new_price;
             CALL procedure_set_nomenclature_sell_price(nom_id, new_price);
             CALL procedure_promotion_by_band_true(nom_id);
         END IF;
@@ -71,7 +71,7 @@ BEGIN
             LEAVE read_loop;
         END IF;
         SET @promotional_price := function_get_nomenclature_sell_price(nom_id);
-        SELECT 100 * (@promotional_price/(100-new_discount)) INTO normal_price;
+        SELECT 100 * (@promotional_price / (100 - new_discount)) INTO normal_price;
         CALL procedure_set_nomenclature_sell_price(nom_id, normal_price);
         CALL procedure_promotion_by_band_false(nom_id);
     END LOOP;
