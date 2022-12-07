@@ -176,12 +176,12 @@ CREATE TABLE table_suppliers
 
 CREATE TABLE table_procurements
 (
-    procurement_id      INT    NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    date_of_procurement DATE   NOT NULL,
-    supplier_id         INT    NOT NULL,
-    record_id           INT    NOT NULL,
-    amount              INT    NOT NULL,
-    cost_price          DOUBLE NOT NULL,
+    procurement_id      INT           NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    date_of_procurement DATE          NOT NULL,
+    supplier_id         INT           NOT NULL,
+    record_id           INT           NOT NULL,
+    amount              INT           NOT NULL,
+    cost_price          DECIMAL(8, 2) NOT NULL,
     FOREIGN KEY (supplier_id) REFERENCES table_suppliers (supplier_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
@@ -205,14 +205,14 @@ CREATE TABLE table_nomenclatures
 (
     nomenclature_id        INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     record_id              INT NOT NULL,
-    total_amount           INT    DEFAULT 0,
-    sell_price             DOUBLE DEFAULT 0.0,
-    total_items_sold       INT    DEFAULT 0,
-    is_available           BOOL   DEFAULT FALSE,
-    promotion_by_genre     BOOL   DEFAULT FALSE,
-    promotion_by_record    BOOL   DEFAULT FALSE,
-    promotion_by_band      BOOL   DEFAULT FALSE,
-    promotion_by_performer BOOL   DEFAULT FALSE,
+    total_amount           INT           DEFAULT 0,
+    sell_price             DECIMAL(8, 2) DEFAULT 0.0,
+    total_items_sold       INT           DEFAULT 0,
+    is_available           BOOL          DEFAULT FALSE,
+    promotion_by_genre     BOOL          DEFAULT FALSE,
+    promotion_by_record    BOOL          DEFAULT FALSE,
+    promotion_by_band      BOOL          DEFAULT FALSE,
+    promotion_by_performer BOOL          DEFAULT FALSE,
     FOREIGN KEY (record_id) REFERENCES table_records (record_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -257,13 +257,13 @@ CREATE TABLE table_orders
     order_id               INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     client_id              INT NOT NULL,
     datetime_of_order      DATETIME,
-    total_items            INT    DEFAULT 0,
-    total_price            DOUBLE DEFAULT 0.0,
-    discount               INT    DEFAULT 0,
-    is_confirmed           BOOL   DEFAULT FALSE,
-    discount_is_considered BOOL   DEFAULT FALSE,
-    is_paid                BOOL   DEFAULT FALSE,
-    is_refunded            BOOL   DEFAULT FALSE,
+    total_items            INT           DEFAULT 0,
+    total_price            DECIMAL(8, 2) DEFAULT 0.0,
+    discount               INT           DEFAULT 0,
+    is_confirmed           BOOL          DEFAULT FALSE,
+    discount_is_considered BOOL          DEFAULT FALSE,
+    is_paid                BOOL          DEFAULT FALSE,
+    is_refunded            BOOL          DEFAULT FALSE,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -344,3 +344,4 @@ BEGIN
     END IF;
 END |
 
+-- finish for all promotions!!!
