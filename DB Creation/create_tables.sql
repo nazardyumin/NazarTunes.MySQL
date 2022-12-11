@@ -146,6 +146,7 @@ CREATE TABLE table_clients
     total_amount_spent DOUBLE       DEFAULT 0.0,
     personal_discount  INT          DEFAULT 0,
     is_subscribed      BOOL         DEFAULT FALSE,
+    has_frozen_items   BOOL         DEFAULT FALSE,
     FOREIGN KEY (credential_id) REFERENCES table_credentials (credential_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (person_id) REFERENCES table_persons (person_id)
@@ -208,6 +209,7 @@ CREATE TABLE table_nomenclatures
     total_amount           INT           DEFAULT 0,
     sell_price             DECIMAL(8, 2) DEFAULT 0.0,
     total_items_sold       INT           DEFAULT 0,
+    total_items_frozen     INT           DEFAULT 0,
     is_available           BOOL          DEFAULT FALSE,
     promotion_by_genre     BOOL          DEFAULT FALSE,
     promotion_by_record    BOOL          DEFAULT FALSE,
@@ -219,11 +221,10 @@ CREATE TABLE table_nomenclatures
 
 CREATE TABLE table_frozen_nomenclatures
 (
-    frozen_nomenclature_id INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    nomenclature_id        INT  NOT NULL,
-    client_id              INT  NOT NULL,
-    amount                 INT  NOT NULL,
-    freeze_till_date       DATE NOT NULL,
+    frozen_nomenclature_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    nomenclature_id        INT NOT NULL,
+    client_id              INT NOT NULL,
+    amount                 INT NOT NULL,
     FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
         ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
