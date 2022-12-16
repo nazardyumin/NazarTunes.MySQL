@@ -254,15 +254,15 @@ END |
 
 DELIMITER |
 CREATE PROCEDURE procedure_get_client(IN new_login VARCHAR(50),
-                                     IN new_pass VARCHAR(50),
-                                     OUT user_id INT,
-                                     OUT user_first_name VARCHAR(100),
-                                     OUT user_last_name VARCHAR(100),
-                                     OUT user_phone VARCHAR(20),
-                                     OUT user_email VARCHAR(100),
-                                     OUT user_total_amount_spent DOUBLE,
-                                     OUT user_personal_discount INT,
-                                     OUT user_is_subscribed BOOL)
+                                      IN new_pass VARCHAR(50),
+                                      OUT user_id INT,
+                                      OUT user_first_name VARCHAR(100),
+                                      OUT user_last_name VARCHAR(100),
+                                      OUT user_phone VARCHAR(20),
+                                      OUT user_email VARCHAR(100),
+                                      OUT user_total_amount_spent DOUBLE,
+                                      OUT user_personal_discount INT,
+                                      OUT user_is_subscribed BOOL)
 BEGIN
     SET @credential_id := function_get_credential_id(new_login, new_pass);
     SET @person_id := function_get_client_person_id(@credential_id);
@@ -310,3 +310,87 @@ BEGIN
         END;
     END;
 END |
+
+
+DELIMITER |
+CREATE FUNCTION function_get_client_person_id(cred_id INT)
+    RETURNS INT
+    DETERMINISTIC
+BEGIN
+    DECLARE id INT;
+    SELECT person_id INTO id FROM table_clients WHERE credential_id = cred_id;
+    RETURN id;
+END |
+
+
+DELIMITER |
+CREATE FUNCTION function_check_if_client_exists(id_client INT, clients_phone VARCHAR(20), clients_email VARCHAR(100))
+    RETURNS BOOL
+    DETERMINISTIC
+BEGIN
+    DECLARE client_exists BOOL DEFAULT FALSE;
+    IF id_client > 0 THEN
+        SELECT EXISTS(SELECT client_id FROM table_clients WHERE client_id = id_client) INTO client_exists;
+    ELSE
+        IF clients_phone != '' THEN
+            SELECT EXISTS(SELECT client_id FROM table_clients WHERE phone = clients_phone) INTO client_exists;
+        ELSE
+            IF clients_email != '' THEN
+                SELECT EXISTS(SELECT client_id FROM table_clients WHERE email = clients_email) INTO client_exists;
+            ELSE
+                RETURN client_exists;
+            END IF;
+        END IF;
+    END IF;
+    RETURN client_exists;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_clients_full_name_and_id(IN id_client INT, IN clients_phone VARCHAR(20),
+                                                        IN clients_email VARCHAR(100),
+                                                        OUT id INT,
+                                                        OUT clients_first_name VARCHAR(100),
+                                                        OUT clients_last_name VARCHAR(100))
+BEGIN
+    IF clients_phone != '' THEN
+        SELECT client_id INTO id FROM table_clients WHERE phone = clients_phone;
+        SELECT first_name
+        INTO clients_first_name
+        FROM table_persons
+                 JOIN table_clients ON table_persons.person_id = table_clients.person_id
+        WHERE phone = clients_phone;
+        SELECT last_name
+        INTO clients_last_name
+        FROM table_persons
+                 JOIN table_clients ON table_persons.person_id = table_clients.person_id
+        WHERE phone = clients_phone;
+    ELSE
+        IF clients_email != '' THEN
+            SELECT client_id INTO id FROM table_clients WHERE email = clients_email;
+            SELECT first_name
+            INTO clients_first_name
+            FROM table_persons
+                     JOIN table_clients ON table_persons.person_id = table_clients.person_id
+            WHERE email = clients_email;
+            SELECT last_name
+            INTO clients_last_name
+            FROM table_persons
+                     JOIN table_clients ON table_persons.person_id = table_clients.person_id
+            WHERE email = clients_email;
+        ELSE
+            SELECT id_client INTO id;
+            SELECT first_name
+            INTO clients_first_name
+            FROM table_persons
+                     JOIN table_clients ON table_persons.person_id = table_clients.person_id
+            WHERE client_id = id_client;
+            SELECT last_name
+            INTO clients_last_name
+            FROM table_persons
+                     JOIN table_clients ON table_persons.person_id = table_clients.person_id
+            WHERE client_id = id_client;
+        END IF;
+    END IF;
+END |
+
