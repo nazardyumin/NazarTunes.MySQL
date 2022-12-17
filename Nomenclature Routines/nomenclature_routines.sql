@@ -58,3 +58,25 @@ CREATE PROCEDURE procedure_get_all_nomenclatures()
 BEGIN
     SELECT * FROM table_nomenclatures;
 END |
+
+
+DELIMITER |
+CREATE FUNCTION function_check_if_entered_amount_exceeds_actual(id_nomenclature INT, entered_amount INT)
+    RETURNS BOOL
+    DETERMINISTIC
+BEGIN
+    SET @actual_amount := function_get_nomenclature_total_amount(id_nomenclature);
+    IF entered_amount > @actual_amount THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_add_new_frozen_item(IN id_nomenclature INT, IN id_client INT, IN new_amount INT)
+BEGIN
+    INSERT INTO table_frozen_nomenclatures (nomenclature_id, client_id, amount)
+    VALUES (id_nomenclature, id_client, new_amount);
+END |

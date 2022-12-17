@@ -416,3 +416,18 @@ BEGIN
         CALL procedure_return_normal_price_by_record(NEW.record_id, NEW.discount);
     END IF;
 END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_refresh_nomenclature_amount_after_adding_new_frozen_item
+    AFTER INSERT
+    ON table_frozen_nomenclatures
+    FOR EACH ROW
+BEGIN
+    DECLARE old_amount INT;
+    DECLARE new_amount INT;
+    SELECT function_get_nomenclature_total_amount(NEW.nomenclature_id) INTO old_amount;
+    SELECT old_amount - NEW.amount INTO new_amount;
+    UPDATE table_nomenclatures SET total_amount = new_amount WHERE nomenclature_id = NEW.nomenclature_id;
+END |
+
