@@ -80,3 +80,21 @@ BEGIN
     INSERT INTO table_frozen_nomenclatures (nomenclature_id, client_id, amount)
     VALUES (id_nomenclature, id_client, new_amount);
 END |
+
+
+DELIMITER |
+CREATE FUNCTION function_get_nomenclature_frozen_amount(id INT)
+    RETURNS INT
+    DETERMINISTIC
+BEGIN
+    DECLARE frozen_amount INT;
+    SELECT total_items_frozen INTO frozen_amount FROM table_nomenclatures WHERE record_id = id;
+    RETURN frozen_amount;
+END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_get_all_frozen_nomenclatures()
+BEGIN
+    SELECT * FROM table_frozen_nomenclatures;
+END |

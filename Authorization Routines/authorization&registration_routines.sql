@@ -394,3 +394,17 @@ BEGIN
     END IF;
 END |
 
+
+DELIMITER |
+CREATE FUNCTION function_get_client_info(id_client INT)
+    RETURNS TEXT
+    DETERMINISTIC
+BEGIN
+    DECLARE client_info TEXT;
+    SELECT CONCAT_WS(' ', 'ID', client_id, '-', first_name, last_name, phone, email)
+    FROM table_clients
+             JOIN table_persons ON table_clients.person_id = table_persons.person_id
+    WHERE client_id = id_client
+    INTO client_info;
+    RETURN client_info;
+END |

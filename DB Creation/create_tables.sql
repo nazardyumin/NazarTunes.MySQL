@@ -424,10 +424,13 @@ CREATE TRIGGER trigger_refresh_nomenclature_amount_after_adding_new_frozen_item
     ON table_frozen_nomenclatures
     FOR EACH ROW
 BEGIN
-    DECLARE old_amount INT;
-    DECLARE new_amount INT;
-    SELECT function_get_nomenclature_total_amount(NEW.nomenclature_id) INTO old_amount;
-    SELECT old_amount - NEW.amount INTO new_amount;
-    UPDATE table_nomenclatures SET total_amount = new_amount WHERE nomenclature_id = NEW.nomenclature_id;
+    UPDATE table_nomenclatures
+    SET total_amount       = function_get_nomenclature_total_amount(NEW.nomenclature_id) - NEW.amount,
+        total_items_frozen = function_get_nomenclature_frozen_amount(NEW.nomenclature_id) + NEW.amount
+    WHERE nomenclature_id = NEW.nomenclature_id;
+    CALL procedure_make_nomenclature_available_or_unavailable(NEW.nomenclature_id);
+    UPDATE table_clients SET has_frozen_items = TRUE WHERE client_id = NEW.client_id;
 END |
+
+
 
