@@ -433,4 +433,20 @@ BEGIN
 END |
 
 
-
+DELIMITER |
+CREATE TRIGGER trigger_refresh_nomenclature_amount_before_deleting_frozen_item
+    AFTER DELETE
+    ON table_frozen_nomenclatures
+    FOR EACH ROW
+BEGIN
+    UPDATE table_nomenclatures
+    SET total_amount       = function_get_nomenclature_total_amount(OLD.nomenclature_id) + OLD.amount,
+        total_items_frozen = function_get_nomenclature_frozen_amount(OLD.nomenclature_id) - OLD.amount
+    WHERE nomenclature_id = OLD.nomenclature_id;
+    CALL procedure_make_nomenclature_available_or_unavailable(OLD.nomenclature_id);
+    SET @exists :=
+            EXISTS(SELECT frozen_nomenclature_id FROM table_frozen_nomenclatures WHERE client_id = OLD.client_id);
+    IF !@exists THEN
+        UPDATE table_clients SET has_frozen_items = FALSE WHERE client_id = OLD.client_id;
+    END IF;
+END |

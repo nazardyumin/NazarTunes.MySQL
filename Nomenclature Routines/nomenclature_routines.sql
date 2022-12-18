@@ -98,3 +98,10 @@ CREATE PROCEDURE procedure_get_all_frozen_nomenclatures()
 BEGIN
     SELECT * FROM table_frozen_nomenclatures;
 END |
+
+
+DELIMITER |
+CREATE PROCEDURE procedure_unfreeze_nomenclature(IN id_frozen_nomenclature INT)
+BEGIN
+    DELETE FROM table_frozen_nomenclatures WHERE frozen_nomenclature_id = id_frozen_nomenclature;
+END |
